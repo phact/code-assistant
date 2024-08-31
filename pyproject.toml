@@ -1,0 +1,11 @@
+[project]
+name = "code-assistant"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "ast-grep-py>=0.26.3",
+    "astra-assistants>=2.1.0.18",
+    "python-fasthtml==0.4.5",
+]
