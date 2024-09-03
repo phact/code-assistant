@@ -9,3 +9,6 @@ dependencies = [
     "astra-assistants>=2.1.0.18",
     "python-fasthtml==0.4.5",
 ]
+
+[tool.uv.sources]
+python-fasthtml = { git = "https://github.com/AnswerDotAI/fasthtml/", rev = "00f7256453ab63a172853b0b3c604be79f01b13f" }

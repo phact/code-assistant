@@ -155,6 +155,7 @@ def get_code_section():
                 #Div(id="code-output", cls="code-output"),
                 Span(id="code-spinner", cls="loading loading-spinner loading-sm spinner"),
                 ChatControls(),
+                PicoBusy(),
                 cls="flex-item"
             ),
             Div(cls="divider divider-horizontal"),

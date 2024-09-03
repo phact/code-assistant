@@ -254,6 +254,7 @@ def get_mount_from_file(filename, program_id=None):
         program_id = filename
     filename = filename.split('.')[0]
     print(f"loading filename: {filename}")
+    app = None
     try:
         with open(f'code_assistant/generated_apps/{filename}.py') as f:
             code = f.read()
@@ -279,27 +280,33 @@ def get_mount_from_file(filename, program_id=None):
         import traceback
         trace = traceback.format_exc()
         content = json.dumps({"error_message": str(e), "filename": filename, "program_id": program_id})
+        app = get_error_app(filename, str(e), trace, program_id, get_post_message_script(content))
         mount = Mount(
             path=f"/{filename}",
-            app=get_error_app(filename, str(e), trace, program_id, get_post_message_script(content))
+            app=app
         )
+    script = None
     for route in mount.routes:
         # route.hdrs.insert(0, script_with_path(f'/{filename}'))
         script = script_with_path(f'/{filename}')
-        if not isinstance(route, RouteX):
-            route = RouteX(
-                path=route.path,
-                endpoint=route.endpoint,
-                methods=route.methods,
-                name=route.name,
-                include_in_schema=route.include_in_schema,
-                hdrs=[script, ],
-            )
-        else:
-            route.hdrs.append(script)
+        #if not isinstance(route, RouteX):
+        #    route = RouteX(
+        #        path=route.path,
+        #        endpoint=route.endpoint,
+        #        methods=route.methods,
+        #        name=route.name,
+        #        include_in_schema=route.include_in_schema,
+        #        hdrs=[script, ],
+        #    )
+        #else:
+        #    route.hdrs.append(script)
         break
-    print(f"loaded filename: {filename}")
-    return mount
+    if app is not None and script is not None:
+        app.hdrs.append(script)
+        print(f"loaded filename: {filename}")
+        return mount
+    else:
+        raise Exception("This is a bug, should not happen")
 
 
 ts_language = Language(tspython.language())

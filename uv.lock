@@ -286,7 +286,7 @@ dependencies = [
 requires-dist = [
     { name = "ast-grep-py", specifier = ">=0.26.3" },
     { name = "astra-assistants", specifier = ">=2.1.0.18" },
-    { name = "python-fasthtml", specifier = "==0.4.5" },
+    { name = "python-fasthtml", git = "https://github.com/AnswerDotAI/fasthtml/?rev=00f7256453ab63a172853b0b3c604be79f01b13f" },
 ]
 
 [[package]]
@@ -309,14 +309,14 @@ wheels = [
 
 [[package]]
 name = "fastcore"
-version = "1.7.2"
+version = "1.7.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "packaging" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/71/12/811b979f164b981a11c32b94ea3f70453ad40d7f873f9a194799f0f1e902/fastcore-1.7.2.tar.gz", hash = "sha256:760312289f863deea20399a84ac399e9a2da1ac5c694a13b775d6ea76bcbb452", size = 75922 }
+sdist = { url = "https://files.pythonhosted.org/packages/36/57/eb5ddf3ee18180040860ae93b5d0ce7c96eefa29e1c5b056755598b21125/fastcore-1.7.4.tar.gz", hash = "sha256:4195e3f14882aea02c7768b6bc7b686125f6164206ab81a200c83baf4230e1e8", size = 75936 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a6/96/42e26f3aadccddc423f96b0d09beedc36634e7dbdf191c9bcdf69dfac651/fastcore-1.7.2-py3-none-any.whl", hash = "sha256:b33f9d21a354ba6be5d0a05800524d38e18cd3c2bf91b426481492c01c718da9", size = 79551 },
+    { url = "https://files.pythonhosted.org/packages/60/fa/343c24b933bb697d992955b587210097e75cf027974956781284bbed4df5/fastcore-1.7.4-py3-none-any.whl", hash = "sha256:0523d15a89e7242db3a71126877550e7783f5a81d3c3881d27cf80e2ee37153e", size = 79593 },
 ]
 
 [[package]]
@@ -800,8 +800,8 @@ wheels = [
 
 [[package]]
 name = "python-fasthtml"
-version = "0.4.5"
-source = { registry = "https://pypi.org/simple" }
+version = "0.5.2"
+source = { git = "https://github.com/AnswerDotAI/fasthtml/?rev=00f7256453ab63a172853b0b3c604be79f01b13f#00f7256453ab63a172853b0b3c604be79f01b13f" }
 dependencies = [
     { name = "beautifulsoup4" },
     { name = "fastcore" },
@@ -813,10 +813,6 @@ dependencies = [
     { name = "python-multipart" },
     { name = "starlette" },
     { name = "uvicorn", extra = ["standard"] },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/2a/a7/c597bfad81a2a90cd75e030f76aba24008b9d564cea6756c8b77e2bfcc25/python-fasthtml-0.4.5.tar.gz", hash = "sha256:e3a8b1de9097f91097fbf6cd62cf4ff72f708738428f4ede5c69a2a110401f2c", size = 40652 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/e4/4b/be5ff8c3217f4fcd4603c7de0a98c06f8839e61d1d6d7eaa36210e3022b9/python_fasthtml-0.4.5-py3-none-any.whl", hash = "sha256:ffb9d6ad1eedb5fcdada96d633a8fd4d9102693183360846f8b2e88b8c8b806d", size = 44121 },
 ]
 
 [[package]]
