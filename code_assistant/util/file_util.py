@@ -123,6 +123,20 @@ def script_with_path(path: str):
     add_listener();
   }});
   
+  function postMessageToParent(error_message){{
+    // send postMessage to the parent
+    var payload = {{
+        type: 'showMessage',
+        content: {{
+            'error_message': error_message,
+            'filename': '{prefix_id}.py', // TODO handle other filetypes
+        }}
+    }};
+    window.parent.postMessage(payload, '*');
+  }}
+  
+  
+ 
   
   // Handles javascript errors for self healing
   window.onerror = function(message, source, lineno, colno, error) {{
@@ -132,16 +146,18 @@ def script_with_path(path: str):
     console.error('Column:', colno);
     console.error('Error object:', error);
 
-        // send postMessage to the parent
-        var payload = {{
-            type: 'showMessage',
-            content: {{
-                'error_message': 'Error message: ' + message + '\\nSource: ' + source + '\\nLine: ' + lineno + '\\nColumn: ' + colno + '\\nError object: ' + error,
-                'filename': '{prefix_id}.py', // TODO handle other filetypes
-            }}
-        }};
-        window.parent.postMessage(payload, '*');
+    let error_message = 'Error message: ' + message + '\\nSource: ' + source + '\\nLine: ' + lineno + '\\nColumn: ' + colno + '\\nError object: ' + error;
+    postMessageToParent(error_message);
+
   }};
+  
+  window.addEventListener('unhandledrejection', function(event) {{
+    console.error('Unhandled Rejection: ', event.reason);
+    debugger
+    postMessageToParent('Error message: ' + event.reason);
+  }});
+  
+ 
 
 """)
 
