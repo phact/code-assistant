@@ -3,9 +3,9 @@ from typing import List
 
 from astra_assistants import patch
 from astra_assistants.astra_assistants_manager import AssistantManager
-from astra_assistants.tools.structured_code.delete import StructuredCodeDelete
+#from astra_assistants.tools.structured_code.delete import StructuredCodeDelete
 #from astra_assistants.tools.structured_code.indent import StructuredCodeIndentRight, StructuredCodeIndentLeft
-from astra_assistants.tools.structured_code.insert import StructuredCodeInsert
+#from astra_assistants.tools.structured_code.insert import StructuredCodeInsert
 from astra_assistants.tools.structured_code.program_cache import ProgramCache, StructuredProgramEntry, StructuredProgram
 #from astra_assistants.tools.structured_code.replace import StructuredCodeReplace
 from astra_assistants.tools.structured_code.rewrite import StructuredCodeRewrite
@@ -14,7 +14,7 @@ from astra_assistants.tools.tool_interface import ToolInterface
 from openai import OpenAI, BaseModel
 from pydantic import Field
 
-from code_assistant.util.constants import small_fasthtml_context
+from code_assistant.util.constants.small_fasthtml_context import small_fasthtml_context
 from code_assistant.util.file_util import get_mount_from_file
 
 

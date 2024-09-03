@@ -8,9 +8,12 @@ from fasthtml.common import *
 from starlette.datastructures import UploadFile
 
 from code_assistant.assistants import ManagerFactory
+from code_assistant.util.constants import htmx_context
+from code_assistant.util.constants.big_fasthtml_context import big_fasthtml_context
+from code_assistant.util.constants.css_text import css_text
+from code_assistant.util.constants.small_fasthtml_context import small_fasthtml_context
 from code_assistant.util.file_util import get_mount_from_file
-from code_assistant.util.constants import css_text, small_fasthtml_context, big_fasthtml_context, htmx_context, \
-    starter_app
+from code_assistant.util.constants.htmx_context import starter_app
 
 css = Style(css_text)
 
@@ -405,7 +408,8 @@ async def post(session, msg: str):
             FileOutput(output.to_string(False)),
             SelectFile(manager.code_generator.program_cache),
             ChatInput(),
-            ChatControls(programid=programid)
+            ChatControls(programid=programid),
+            PreviewCheckbox(programid, False)
         )
     else:
         return (
@@ -448,15 +452,6 @@ async def edit_program(session, msg: str, programid: str = None, tool_choice: st
         first_chunk = add_chunks_to_cache(r, manager.programs, get_response)
         output = first_chunk['output']
         programid = first_chunk['program_id']
-        #output = None
-        #optional_text = ""
-        #for chunk in r:
-        #    if 'output' in chunk:
-        #        output = chunk['output']
-        #    else:
-        #        optional_text = chunk
-        #    break
-        #get_response(r, optional_text) # Start a new thread to fill in content
 
         selected_index = 0
         i = 1
