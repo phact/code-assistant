@@ -6,7 +6,6 @@ import traceback
 from importlib import import_module
 
 from ast_grep_py import SgRoot
-from fasthtml import RouteX
 from fasthtml.common import Script
 from fasthtml.core import FastHTML
 import starlette.middleware.errors as errors_module
@@ -254,7 +253,7 @@ def get_mount_from_file(filename, program_id=None):
         program_id = filename
     filename = filename.split('.')[0]
     print(f"loading filename: {filename}")
-    app = None
+    sub_app = None
     try:
         with open(f'code_assistant/generated_apps/{filename}.py') as f:
             code = f.read()
@@ -265,14 +264,14 @@ def get_mount_from_file(filename, program_id=None):
 
         module = import_module(f'code_assistant.generated_apps.{filename}')
         importlib.reload(module)
-        app = module.app
-        app.debug = True
-        app.add_middleware(CustomServerErrorMiddleware)
-        app.add_middleware(ErrorHandlingMiddleware)
+        sub_app = module.app
+        sub_app.debug = True
+        sub_app.add_middleware(CustomServerErrorMiddleware)
+        sub_app.add_middleware(ErrorHandlingMiddleware)
 
         mount = Mount(
             f"/{filename}",
-            app,
+            sub_app,
         )
         assert isinstance(mount.app,
                           FastHTML), "The app is not a FastHTML app. Always use `from fasthtml.common import *`"
@@ -280,33 +279,16 @@ def get_mount_from_file(filename, program_id=None):
         import traceback
         trace = traceback.format_exc()
         content = json.dumps({"error_message": str(e), "filename": filename, "program_id": program_id})
-        app = get_error_app(filename, str(e), trace, program_id, get_post_message_script(content))
+        sub_app = get_error_app(filename, str(e), trace, program_id, get_post_message_script(content))
         mount = Mount(
             path=f"/{filename}",
-            app=app
+            app=sub_app
         )
-    script = None
-    for route in mount.routes:
-        # route.hdrs.insert(0, script_with_path(f'/{filename}'))
-        script = script_with_path(f'/{filename}')
-        #if not isinstance(route, RouteX):
-        #    route = RouteX(
-        #        path=route.path,
-        #        endpoint=route.endpoint,
-        #        methods=route.methods,
-        #        name=route.name,
-        #        include_in_schema=route.include_in_schema,
-        #        hdrs=[script, ],
-        #    )
-        #else:
-        #    route.hdrs.append(script)
-        break
-    if app is not None and script is not None:
-        app.hdrs.append(script)
-        print(f"loaded filename: {filename}")
-        return mount
-    else:
-        raise Exception("This is a bug, should not happen")
+    script = script_with_path(f'/{filename}')
+    assert sub_app is not None, "Unexpected error, sub_app is none"
+    sub_app.hdrs.append(script)
+    print(f"loaded filename: {filename}")
+    return mount
 
 
 ts_language = Language(tspython.language())
