@@ -81,7 +81,7 @@ def get_code_section(manager, messages):
                         id="context_modal", cls="modal"
                     ),
                 ),
-                Div(*[ChatMessage(index) for index, message in enumerate(messages)],
+                Div(*[ChatMessage(messages, index) for index, message in enumerate(messages)],
                     id="chatlist", cls="chat-box overflow-y-auto code-output"),
                 #Div(id="code-output", cls="code-output"),
                 Span(id="code-spinner", cls="loading loading-spinner loading-sm spinner"),
