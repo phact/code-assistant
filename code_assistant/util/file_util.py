@@ -84,7 +84,40 @@ def script_with_path(path: str):
     script = Script(f"""
   let {prefix_id}_basePrefix = '{path}';
 
-  function add_listener(){{
+  function add_listeners(){{
+    document.addEventListener('submit', function(event) {{
+        // Prevent the form from submitting immediately
+        event.preventDefault();
+        
+        const form = event.target;
+        // If the action has already been modified, submit normally
+        if (form.dataset.actionModified) {{
+            form.submit();  // Submit the form programmatically
+            return;
+        }}
+
+        // Check if the form action contains a full URL or just a path
+        const formAction = new URL(form.action, window.location.origin); // Ensures we work with full URL
+
+        // Modify only the path part of the action
+        const newPath = {prefix_id}_basePrefix + formAction.pathname;
+        
+        // Reconstruct the full URL with the new path
+        formAction.pathname = newPath;
+
+        // Assign the modified URL back to the form action
+        form.action = formAction.href;
+
+        console.log('Form action changed to:', form.action);
+        
+        // Mark the form as having its action modified
+        form.dataset.actionModified = 'true';
+        
+        form.submit();
+
+    }}, true); // 'true' ensures it captures the event in the capturing phase
+
+
     // Listener for the HTMX config request event
     document.body.addEventListener("htmx:configRequest", function(event) {{
       const path = event.detail.path;
@@ -116,10 +149,29 @@ def script_with_path(path: str):
       }}
       return originalFetch(input, init);
     }}
+    
+    
+    const stringifyCircularJSON = obj => {{
+      const seen = new WeakSet();
+      return JSON.stringify(obj, (k, v) => {{
+        if (v !== null && typeof v === 'object') {{
+          if (seen.has(v)) return;
+          seen.add(v);
+        }}
+        return v;
+      }});
+    }};
+
+    // Handle general HTMX response errors
+    document.body.addEventListener('htmx:responseError', function(event) {{
+      console.error('HTMX Response Error:', event.detail);
+      postMessageToParent('Error message: ' + stringifyCircularJSON(event.detail));
+    }});
+    
   }};
   
   document.addEventListener("DOMContentLoaded", function() {{
-    add_listener();
+    add_listeners();
   }});
   
   function postMessageToParent(error_message){{
@@ -152,11 +204,51 @@ def script_with_path(path: str):
   
   window.addEventListener('unhandledrejection', function(event) {{
     console.error('Unhandled Rejection: ', event.reason);
-    debugger
     postMessageToParent('Error message: ' + event.reason);
   }});
   
- 
+  (function() {{
+    // Backup the original methods
+    const originalThen = Promise.prototype.then;
+    const originalCatch = Promise.prototype.catch;
+    const originalSend = XMLHttpRequest.prototype.send;
+
+    // Override `then`
+    Promise.prototype.then = function(onFulfilled, onRejected) {{
+        const wrappedOnRejected = function(reason) {{
+            console.error('Caught rejection in .then():', reason);
+            postMessageToParent('Error message: ' + reason);
+            
+            // Continue with the original handler
+            return onRejected ? onRejected(reason) : Promise.reject(reason);
+        }};
+        return originalThen.call(this, onFulfilled, wrappedOnRejected);
+    }};
+
+    // Override `catch`
+    Promise.prototype.catch = function(onRejected) {{
+        const wrappedOnRejected = function(reason) {{
+            console.error('Caught rejection in .catch():', reason);
+            postMessageToParent('Error message: ' + reason);
+
+            // Continue with the original handler
+            return onRejected ? onRejected(reason) : Promise.reject(reason);
+        }};
+        return originalCatch.call(this, wrappedOnRejected);
+    }};
+    
+    XMLHttpRequest.prototype.send = function() {{
+        this.addEventListener('load', function() {{
+            if (this.status > 400 && this.status < 600) {{
+                console.error('XHR Error: ' + this.responseURL + ' status: ' + this.status);
+                postMessageToParent('XHR Error: ' + this.responseURL + ' status: ' + this.status);
+            }}
+        }});
+        return originalSend.apply(this, arguments);
+    }};
+    
+  }})();
+  
 
 """)
 
@@ -255,14 +347,14 @@ def get_mount_from_file(filename, program_id=None):
     print(f"loading filename: {filename}")
     sub_app = None
     try:
-        with open(f'code_assistant/generated_apps/{filename}.py') as f:
+        with open(f'generated_apps/{filename}.py') as f:
             code = f.read()
             # TODO: required libraries will be configurable
             assert is_library_used(code, 'fasthtml'), "The app does not use fasthtml library."
             assert serve_attr_check(code), "serve() function should not have any attributes."
             assert (code), "serve() function should not have any attributes."
 
-        module = import_module(f'code_assistant.generated_apps.{filename}')
+        module = import_module(f'generated_apps.{filename}')
         importlib.reload(module)
         sub_app = module.app
         sub_app.debug = True

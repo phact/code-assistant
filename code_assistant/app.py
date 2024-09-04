@@ -1,79 +1,10 @@
-import json
 import traceback
-from uuid import uuid1
 
-from astra_assistants.tools.structured_code.program_cache import StructuredProgram
-from astra_assistants.tools.structured_code.util import add_chunks_to_cache
 from fasthtml.common import *
-from starlette.datastructures import UploadFile
 
-from code_assistant.assistants import ManagerFactory
-from code_assistant.util.constants import htmx_context
-from code_assistant.util.constants.big_fasthtml_context import big_fasthtml_context
-from code_assistant.util.constants.css_text import css_text
-from code_assistant.util.constants.small_fasthtml_context import small_fasthtml_context
-from code_assistant.util.file_util import get_mount_from_file
-from code_assistant.util.constants.htmx_context import starter_app
-
-css = Style(css_text)
-
-# Set up the app, including daisyui and tailwind for the chat component
-tlink = Script(src="https://cdn.tailwindcss.com"),
-dlink = Link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/daisyui@4.11.1/dist/full.min.css")
-plink = Link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/@picocss/pico@latest/css/pico.min.css")
-scrollScript = Script('''
-document.addEventListener('DOMContentLoaded', function() {
-    // Function to auto-scroll chat to the bottom on new message
-    function scrollToBottom() {
-        const chatList = document.getElementById('chatlist');
-        if (chatList) {
-            chatList.scrollTop = chatList.scrollHeight;
-        }
-    }
-    
-    // Observe mutations in the chatlist to auto-scroll
-    const chatListElement = document.getElementById('chatlist');
-    if (chatListElement) {
-        const observer = new MutationObserver(scrollToBottom);
-        observer.observe(chatListElement, { childList: true });
-    }
-});
-''')
-
-app_routes = []
-
-for root, dirs, files in os.walk('code_assistant/generated_apps'):
-    for file in files:
-        if file.endswith('.py'):
-            mount = get_mount_from_file(file)
-            app_routes.append(mount)
-
-iframe_post_message_script = Script("""
-        // Listen for messages from the iframe
-        window.addEventListener('message', function(event) {
-            if (event.data.type === 'showMessage') {
-                let error_message = document.getElementById('error-message')
-                error_message.style.display = 'block';
-                let heal_data = document.getElementById('heal_data')
-                content = JSON.stringify(event.data.content)
-                heal_data.value = content
-            }
-        });
-""")
-
-app = FastHTML(hdrs=(tlink, dlink, css, scrollScript, plink, iframe_post_message_script), routes=app_routes)
-
-setup_toasts(app)
-rt = app.route
-
-manager = ManagerFactory(app)
-
-messages = []
-
-
-def get_main_content():
+def get_main_content(manager, messages):
     return Div(
-        get_code_section(),
+        get_code_section(manager, messages),
     )
 
 
@@ -89,7 +20,7 @@ heal_form = Form(
 )
 
 
-def get_code_section():
+def get_code_section(manager, messages):
     return Section(
         Header(H1("Code Assistant")),
 
@@ -226,28 +157,8 @@ htmx.on('#form', 'htmx:xhr:progress', function(evt) {
     )
 
 
-@rt('/')
-async def get(session):
-    message_objects = []
-    #message_objects= client.beta.threads.messages.list(thread_id="thread_94kTIBLZI918vFI6OLzpnOFqmiH9SI7L", order="asc").data
-
-    for message_object in message_objects:
-        msg = message_object.content[0].text.value
-        if message_object.role == "user":
-            messages.append({"role": "user", "content": msg})
-        else:
-            messages.append({"role": "assistant", "content": msg})
-    return Body(
-        Div(
-            #get_sidebar(),
-            get_main_content(),
-            cls="container"
-        )
-    )
-
-
 # Chat message component, polling if message is still being generated
-def ChatMessage(msg_idx):
+def ChatMessage(messages, msg_idx):
     msg = messages[msg_idx]
     text = "..." if msg['content'] == "" else msg['content']
     bubble_class = "chat-bubble" if msg['role'] == 'user' else 'chat-bubble'
@@ -260,12 +171,6 @@ def ChatMessage(msg_idx):
                cls=f"chat {chat_class}", id=f"chat-message-{msg_idx}",
                **stream_args if generating else {})
 
-
-# Route that gets polled while streaming
-@app.get("/chat_message/{msg_idx}")
-async def get_chat_message(msg_idx: int):
-    if msg_idx >= len(messages): return ""
-    return ChatMessage(msg_idx)
 
 
 # The input field for the user message. Also used to clear the
@@ -365,137 +270,31 @@ def ChatControls(programid: str = None):
     )
 
 
-# Run the chat model in a separate thread
-@threaded
-def get_response(r, optional_text=None):
-    try:
-        idx = len(messages) - 1
-        if optional_text is None or not isinstance(optional_text, str):
-            optional_text = ""
-        messages[idx]["content"] = optional_text
-        for chunk in r:
-            messages[idx]["content"] += chunk
-        if messages[idx]["content"] == "":
-            messages[idx]["content"] = "Done."
-        messages[idx]["generating"] = False
-    except Exception as e:
-        trace = traceback.format_exc()
-        print(f"e: {e} trace: {trace}")
-        messages[idx]["content"] += f"e: {e} trace: {trace}"
-        messages[idx]["generating"] = False
+def get_response_factory(messages):
+    # Run the chat model in a separate thread
+    @threaded
+    def get_response(r, optional_text=None):
+        try:
+            idx = len(messages) - 1
+            if optional_text is None or not isinstance(optional_text, str):
+                optional_text = ""
+            messages[idx]["content"] = optional_text
+            for chunk in r:
+                messages[idx]["content"] += chunk
+            if messages[idx]["content"] == "":
+                messages[idx]["content"] = "Done."
+            messages[idx]["generating"] = False
+        except Exception as e:
+            trace = traceback.format_exc()
+            print(f"e: {e} trace: {trace}")
+            messages[idx]["content"] += f"e: {e} trace: {trace}"
+            messages[idx]["generating"] = False
+
+    return get_response
 
 
-@rt("/code")
-async def post(session, msg: str):
-    idx = len(messages)
-    msg = f"Here is an example FastHTML app: {starter_app}\nMake a new app per the following instructions:\n## Description:\n{msg}"
-    messages.append({"role": "user", "content": msg})
-
-    print(f"New app message: {msg}")
-    r = manager.code_manager.stream_thread(
-        content=msg,
-        tool_choice=manager.code_generator,
-        additional_instructions="\n".join(manager.additional_instructions)
-    )  # Send message to chat model (with streaming)
-
-    messages.append({"role": "assistant", "generating": True, "content": ""})  # Response initially blank
-    first_chunk = add_chunks_to_cache(r, manager.programs, get_response)
-    output = first_chunk['output']
-    programid = first_chunk['program_id']
-    if output is not None:
-        return (
-            ChatMessage(idx),
-            ChatMessage(idx + 1),
-            FileOutput(output.to_string(False)),
-            SelectFile(manager.code_generator.program_cache),
-            ChatInput(),
-            ChatControls(programid=programid),
-            PreviewCheckbox(programid, False)
-        )
-    else:
-        return (
-            ChatMessage(idx),
-            ChatMessage(idx + 1),
-            ChatInput(),
-            ChatControls()
-        )
 
 
-@app.post("/edit/{programid}")
-async def edit_program(session, msg: str, programid: str = None, tool_choice: str = None):
-    try:
-        idx = len(messages)
-        program_string = None
-        for program_entry in manager.programs:
-            if program_entry.program_id == programid:
-                program_string = program_entry.program.to_string()
-                break
-
-        messages.append({"role": "user", "content": msg})
-
-        message_text = f"## Context:\nMake an edit for the program and describe your changes\n" + \
-                       f"the current content of the program (with line numbers) is:\n{program_string}\n" + \
-                       f"## Request:\nPerform the following changes to the program using the edit tools: \n{msg}"
-        if program_string is None:
-            return {"error": f"Program id {programid} not found"}
-        manager.set_program_ids(programid)
-
-        if tool_choice is None:
-            tool_choice = "required"
-
-        r = manager.code_manager.stream_thread(
-            content=message_text,
-            additional_instructions="\n".join(manager.additional_instructions),
-            tool_choice=tool_choice
-        )
-
-        messages.append({"role": "assistant", "generating": True, "content": ""})  # Response initially blank
-        first_chunk = add_chunks_to_cache(r, manager.programs, get_response)
-        output = first_chunk['output']
-        programid = first_chunk['program_id']
-
-        selected_index = 0
-        i = 1
-        for program_entry in manager.programs:
-            if program_entry.program_id == programid:
-                selected_index = i
-            i += 1
-
-        if output is not None:
-            if hasattr(output, 'to_string'):
-                code = output.to_string(False)
-            else:
-                assert isinstance(output, str)
-                code = output
-            return (
-                ChatMessage(idx),
-                Div(Div("Tool", cls="chat-header"),
-                    Div(f"{type(manager.code_manager.tool_call_arguments).__name__} {manager.code_manager.tool_call_arguments}",
-                        cls=f"whitespace-pre-wrap"),
-                    ),
-                ChatMessage(idx + 1),
-                FileOutput(code),
-                SelectFile(manager.code_generator.program_cache, selected_index),
-                ChatInput(),
-                PreviewCheckbox(programid, False)
-            )
-        else:
-            return (
-                ChatMessage(idx),
-                ChatMessage(idx + 1),
-                ChatInput(),
-            )
-    except Exception as e:
-        trace = traceback.format_exc()
-        print(f"e: {e} trace: {trace}")
-        messages[idx]["content"] += f"e: {e} trace: {trace}"
-        messages[idx]["generating"] = False
-        add_toast(session, f"error try again", "error")
-        return (
-            ChatMessage(idx),
-            ChatMessage(idx + 1),
-            ChatInput(),
-        )
 
 
 def PreviewCheckbox(fileselect: str, checked: bool = False):
@@ -518,146 +317,3 @@ def PreviewCheckbox(fileselect: str, checked: bool = False):
     )
 
 
-@rt("/file")
-async def get(session, fileselect: str = None, linenumbers: bool = None):
-    if fileselect is None or fileselect == "" or fileselect == "Select a file":
-        return (
-            FileOutput(),
-            ChatControls(programid=None),
-            #Button("Preview", cls="btn btn-disabled", id="preview-toggle", hx_swap_oob='true')
-            Div(
-                Label(
-                    "Preview",
-                    Input(
-                        id="preview",
-                        name="preview",
-                        type="checkbox",
-                        cls="toggle disabled",
-                        checked=False,
-                        disabled=True,
-                    ),
-                    hx_trigger="change", hx_post=f"/preview/{fileselect}", cls="label cursor-pointer", hx_swap="none",
-                    for_="linenumbers"
-                ),
-                id="preview-toggle",
-                cls="form-control",
-                hx_swap_oob='true'
-            ),
-        )
-
-    cache = manager.programs
-
-    output = None
-    for program_entry in cache:
-        if program_entry.program_id == fileselect:
-            output = program_entry.program
-            break
-
-    return (
-        FileOutput(output.to_string(with_line_numbers=False), linenumbers=linenumbers),
-        ChatControls(fileselect),
-        PreviewCheckbox(fileselect, False)
-    )
-
-
-@rt("/upload")
-async def post(session, uploadfile: UploadFile):
-    text = (await uploadfile.read()).decode()
-    filename = uploadfile.filename
-    programid = str(uuid1())
-    manager.programs.append(
-        {
-            "program_id": programid,
-            "output": StructuredProgram(
-                lines=text.split("\n"),
-                filename=filename,
-                language=filename.split(".")[1]
-            )
-        }
-    )
-    return (
-        FileOutput(text, linenumbers=True),
-        SelectFile(manager.programs),
-        ChatControls(programid=programid)
-    )
-
-
-@rt("/context")
-async def get(session, fasthtml: str = None, small_fasthtml: str = None, htmx: str = None):
-    if fasthtml == 'on':
-        if not big_fasthtml_context in manager.additional_instructions:
-            manager.additional_instructions.append(big_fasthtml_context)
-    else:
-        if big_fasthtml_context in manager.additional_instructions:
-            manager.additional_instructions.remove(big_fasthtml_context)
-
-    if small_fasthtml == 'on':
-        if not small_fasthtml_context in manager.additional_instructions:
-            manager.additional_instructions.append(small_fasthtml_context)
-    else:
-        if small_fasthtml_context in manager.additional_instructions:
-            manager.additional_instructions.remove(small_fasthtml_context)
-
-    if htmx == 'on':
-        if not htmx_context in manager.additional_instructions:
-            manager.additional_instructions.append(htmx_context)
-    else:
-        if htmx_context in manager.additional_instructions:
-            manager.additional_instructions.remove(htmx_context)
-
-
-@rt("/preview/{fileselect}")
-async def post(session, preview: str = None, fileselect: str = None):
-    selected_index = 0
-    i = 1
-    for entry in manager.programs:
-        if entry.program_id == fileselect:
-            selected_index = i
-        i += 1
-    if preview is not None and preview == "on":
-        for entry in manager.programs:
-            if fileselect == entry.program_id:
-                fileselect = entry.program.filename
-        path = fileselect.split(".")[0]
-        return (
-            Div(
-                Div(
-                    Div(f"/{path}/", cls="input"),
-                    cls="mockup-browser-toolbar"),
-                Iframe(src=f"/{path}/", cls="bg-base-200 flex justify-center px-4 py-4 w-full h-full"),
-                #Div("Hello!", cls="bg-base-200 flex justify-center px-4 py-16"),
-                id="file-content", cls="file-content mockup-browser bg-base-300 border", hx_swap_oob='true',
-            ),
-            SelectFile(manager.programs, selected_index, True)
-        )
-    else:
-        content = ""
-        for program_entry in manager.programs:
-            if program_entry.program_id == fileselect:
-                content = program_entry.program.to_string(False)
-        return (
-            FileOutput(content, linenumbers=True),
-            SelectFile(manager.programs, selected_index, False)
-        )
-
-
-@rt('/fix_errors')
-async def post(session, heal_data: str):
-    data = json.loads(heal_data)
-    error_message = data['error_message']
-    filename = data['filename']
-    program_id = None
-    if 'program_id' in data:
-        program_id = data['program_id']
-    else:
-        for program_entry in manager.programs:
-            if program_entry.program.filename == filename:
-                program_id = program_entry.program_id
-                break
-
-    assert program_id is not None, f"Program not found in cache for filename {filename}"
-    message = "Please rewrite the app to fix the following error: " + error_message
-    print(f"healing message {message}")
-    output = await edit_program(session, message, program_id, manager.code_rewriter)
-
-    return output + (heal_form,)

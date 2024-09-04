@@ -61,7 +61,7 @@ class ManagerFactory:
             # if item.program.filename is not None and item.program_id != item.program.filename:
             if item.program.filename is not None:
                 if changed or item.program_id != item.program.filename:
-                    with open(f"code_assistant/generated_apps/{item.program.filename}", "w") as f:
+                    with open(f"generated_apps/{item.program.filename}", "w") as f:
                         f.write(item.program.to_string(with_line_numbers=False))
                     route = None
                     for app_route in self.app.routes:
@@ -109,7 +109,7 @@ class ManagerFactory:
         #self.code_indent_right.set_program_id(program_id)
 
     def setup_programs(self):
-        for root, dirs, files in os.walk('code_assistant/generated_apps'):
+        for root, dirs, files in os.walk('generated_apps'):
             for file in files:
                 if not file.endswith('.pyc'):
                     text = open(root + "/" + file).read()

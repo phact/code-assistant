@@ -38,7 +38,7 @@ def get():
 
 ### HTMX
 
-FastHTML uses htmx for dynamic content updates. Avoid backend redirects like RedirectResponse and frontend events like onclick. Use htmx instead.
+FastHTML uses htmx for dynamic content updates. Aim to use HTMX for dynamic content updates and avoid using JS for DOM manipulation.
 
 ### Function Naming and Routes:
 
@@ -180,19 +180,36 @@ Button(cls='btn', hx_post=f'/thing_id?id=my_thing_id', hx_swap="none")
 
 For POST routes you can also use body parameters but you must use a Form in the html.
 
+You can use starlette request object to get the form data.
+
+For example when submitting the following form (FT):
+
+```
+Form(Input(id='id', type='text'), Button('Submit'), hx_post='/thing_id')
+```
+
+Extract the values from the request object in the route function:
+
 ```
 @app.post('/thing_id')
-def select_vehicle(id: str): # NOTICE the type hint for id, this is required or the variable will be set to None
+def select_vehicle(request): # NOTICE the type hint for id, this is required or the variable will be set to None
+    form_obj = await request.form()
+    id = form_obj['id']
+    print(f'the id is {id}')
     ...
 ```
 
-And the FTs would look like this:
+
+Alternatively (this shorthand is preffered), you can specify the variable name AND TYPE HINT in the route function arguments and FastHTML will automatically extract the values.
 
 ```
-Form(Input(id='id', type='text'), Button('Submit'), action='/thing_id', method='post')
+@app.post('/thing_id')
+def select_vehicle(id: str): # NOTICE the type hint for id, this is required or the variable will be set to None
+    print(f'the id is {id}')
+    ...
 ```
 
-The id attribute of the input tag(s) must match the parameter name(s) in the route.
+Remember, the id attribute of the input tag(s) must match the parameter name(s) in the route.
 
 ### With inputs, checkboxes, or radio buttons
 
@@ -248,6 +265,35 @@ This means that FastHTML will by default serve static files from the directory f
 
 Use serve() with no arguments to start the application server directly, without conditionals or arguments. 
 serve is a function that can be imported from FastHTML.common. It does not take any arguments. It is not a method of the FastHTML class.
+
+## A Minimal Charting Application
+
+The [`Script`](https://AnswerDotAI.github.io/fasthtml/api/xtend.html#script)
+function allows you to include JavaScript. You can use Python to
+generate parts of your JS or JSON like this:
+
+``` python
+import json
+from fasthtml.common import * 
+
+app, rt = fast_app(hdrs=(Script(src="https://cdn.plot.ly/plotly-2.32.0.min.js"),))
+
+data = json.dumps({
+    "data": [{"x": [1, 2, 3, 4],"type": "scatter"},
+            {"x": [1, 2, 3, 4],"y": [16, 5, 11, 9],"type": "scatter"}],
+    "title": "Plotly chart in FastHTML ",
+    "description": "This is a demo dashboard",
+    "type": "scatter"
+})
+
+
+@rt("/")
+def get():
+  return Titled("Chart Demo", Div(id="myDiv"),
+    Script(f"var data = {data}; Plotly.newPlot('myDiv', data);"))
+
+serve()
+```
 
 ### Common Errors to Avoid:
 
