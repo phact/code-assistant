@@ -48,12 +48,21 @@ app, rt = fast_app(hdrs=(tlink, dlink, css, scrollScript, plink, iframe_post_mes
 app.hdrs += (Style(toast_css), Script(toast_js, type="module"))
 app.after.append(toast_after)
 
-manager = ManagerFactory(app)
+class AppState:
+    def __init__(self):
+        self._manager = None
+        self.messages = []
 
-messages = []
+    @property
+    def manager(self):
+        if self._manager is None:
+            self._manager = self.initialize_manager()
+        return self._manager
 
-app.state.manager = manager
-app.state.messages = messages
+    def initialize_manager(self):
+        return ManagerFactory(app)
+
+app.state = AppState()
 
 app.get('/')(home.page)
 app.get("/chat_message/{msg_idx}")(chat_message.page)
