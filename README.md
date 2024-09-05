@@ -3,7 +3,8 @@
 A FastHTML app that makes FastHTML apps.
 
 ## Features and Roadmap:
- - [X] Live app preview
+
+### Guiding the LLM
  - [X] LSP support (code actions)
  - [X] LSP support (retrieve diagnostics)
  - [X] LSP Support (linter/formatter with `ruff server`)
@@ -21,10 +22,18 @@ A FastHTML app that makes FastHTML apps.
  - [ ] dynamic openapi spec llm context
  - [ ] dynamic sample apps llm context
  - [ ] astra-assistants documentation llm context
+ - [ ] Multi-turn generation
+
+### UI/UX
+ - [X] Live app preview
  - [X] Drive generated_apps dir with env var CA_GENERATED_APPS_DIR
  - [ ] Add third party model support to frontend
- - [ ] Sandboxing (probably with e2b)
  - [ ] ollama integration guide / docs
+
+ ### Multi-tenancy
+ - [ ] Sessions
+ - [ ] Sandboxing (probably with e2b)
+
 
 code-assistant is built on OpenAI's Assistant API and uses astra-assistants to run non openAI models including local models.
 
