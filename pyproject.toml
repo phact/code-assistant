@@ -19,7 +19,7 @@ build-backend = "hatchling.build"
 
 [tool.poetry]
 name = "code-assistant"
-version = "0.0.0.14"
+version = "0.0.1"
 description = "A FastHTML app that builds FastHTML apps"
 authors = ["phact <estevezsebastian@gmail.com>"]
 include = [
