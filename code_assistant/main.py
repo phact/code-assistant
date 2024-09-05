@@ -1,3 +1,5 @@
+import shutil
+
 from code_assistant.assistants import ManagerFactory
 from code_assistant.routes import home, chat_message, code, edit, file_rt, upload, context, preview, fix_errors
 from fasthtml.common import *
@@ -8,6 +10,9 @@ from code_assistant.constants.post_message_listener_src import post_message_list
 from code_assistant.util.file_util import get_mount_from_file
 from code_assistant.constants.config import GENERATED_APPS_DIR
 
+from importlib.resources import files
+
+
 css = Style(css_text)
 
 # Set up the app, including daisyui and tailwind for the chat component
@@ -17,6 +22,17 @@ plink = Link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/@picocss/pico@
 scrollScript = Script(scroll_script_src)
 
 app_routes = []
+
+print(f"Generated apps dir: {GENERATED_APPS_DIR}")
+if not os.path.exists(GENERATED_APPS_DIR):
+    print(f"Creating: {GENERATED_APPS_DIR}")
+    os.makedirs(GENERATED_APPS_DIR)
+
+    generated_apps_dir = files('code_assistant').joinpath('generated_apps')
+    print(f"Copying files to : {GENERATED_APPS_DIR}")
+    for file in generated_apps_dir.iterdir():
+        if file.is_file():
+            shutil.copy(file, GENERATED_APPS_DIR)
 
 for root, dirs, files in os.walk(GENERATED_APPS_DIR):
     for file in files:

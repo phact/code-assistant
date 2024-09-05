@@ -19,13 +19,16 @@ build-backend = "hatchling.build"
 
 [tool.poetry]
 name = "code-assistant"
-version = "0.0.0.9"
+version = "0.0.0.14"
 description = "A FastHTML app that builds FastHTML apps"
 authors = ["phact <estevezsebastian@gmail.com>"]
+include = [
+    "code_assistant/generated_apps/*"
+]
 
 [tool.poetry.scripts]
 ca = "code_assistant:app"
-code-assistant = "code_assistant:app"
+code-assistant = "code_assistant.code_assistant:app"
 
 [tool.poetry.dependencies]
 python = "^3.10.12,<3.12"

@@ -148,5 +148,5 @@ cython_debug/
 
 .sesskey
 
-backup_generated_apps/
+code_assistant/backup_generated_apps/
 generated_apps/
