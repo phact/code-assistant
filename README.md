@@ -2,6 +2,32 @@
 
 A FastHTML app that makes FastHTML apps.
 
+## Features and Roadmap:
+ - [X] Live app preview
+ - [X] LSP support (code actions)
+ - [X] LSP support (retrieve diagnostics)
+ - [X] LSP Support (linter/formatter with `ruff server`)
+ - [ ] LSP Support (type checker, use pyright or wait for ruff red-knot? https://github.com/astral-sh/ruff/issues/12701)
+ - [ ] LSP support (use diagnostics in LLM context)
+ - [X] Self-healing (backend runtime errors)
+ - [X] Self-healing (frontend runtime errors)
+ - [X] python indentation helper with tree sitter
+ - [X] FastHTML specific validations using ast-grep
+ - [X] FastHTML documentation llm context
+ - [X] HTMX documentation llm context
+ - [ ] fastlite documentation llm context
+ - [ ] fastsql documentation llm context
+ - [ ] fastastra documentation llm context
+ - [ ] dynamic openapi spec llm context
+ - [ ] dynamic sample apps llm context
+ - [ ] astra-assistants documentation llm context
+ - [X] Drive generated_apps dir with env var CA_GENERATED_APPS_DIR
+ - [ ] Add third party model support to frontend
+ - [ ] Sandboxing (probably with e2b)
+ - [ ] ollama integration guide / docs
+
+code-assistant is built on OpenAI's Assistant API and uses astra-assistants to run non openAI models including local models.
+
 ## Install and run
 
 Install with pip:
