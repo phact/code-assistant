@@ -22,6 +22,7 @@ A FastHTML app that makes FastHTML apps.
  - [ ] dynamic openapi spec llm context
  - [ ] dynamic sample apps llm context
  - [ ] astra-assistants documentation llm context
+ - [ ] Multi-file support
  - [ ] Multi-turn generation
 
 ### UI/UX
