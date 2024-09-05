@@ -275,7 +275,7 @@ wheels = [
 [[package]]
 name = "code-assistant"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "ast-grep-py" },
     { name = "astra-assistants" },
@@ -286,7 +286,7 @@ dependencies = [
 requires-dist = [
     { name = "ast-grep-py", specifier = ">=0.26.3" },
     { name = "astra-assistants", specifier = ">=2.1.0.19" },
-    { name = "python-fasthtml", git = "https://github.com/AnswerDotAI/fasthtml/?rev=00f7256453ab63a172853b0b3c604be79f01b13f" },
+    { name = "python-fasthtml", specifier = ">=0.5.1" },
 ]
 
 [[package]]
@@ -800,8 +800,8 @@ wheels = [
 
 [[package]]
 name = "python-fasthtml"
-version = "0.5.2"
-source = { git = "https://github.com/AnswerDotAI/fasthtml/?rev=00f7256453ab63a172853b0b3c604be79f01b13f#00f7256453ab63a172853b0b3c604be79f01b13f" }
+version = "0.5.1"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "beautifulsoup4" },
     { name = "fastcore" },
@@ -813,6 +813,10 @@ dependencies = [
     { name = "python-multipart" },
     { name = "starlette" },
     { name = "uvicorn", extra = ["standard"] },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/88/45/aa1a562298e58ff617a218e4a520c3072a2803c96d905342c0e8f9e09abf/python-fasthtml-0.5.1.tar.gz", hash = "sha256:4ea293dbb0037a172dc1ac457d1ad9a288f8394705061519451cf6421828cdf2", size = 43175 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/65/85/9caade5d0b721477f71a85a52f8ceb7e02c3c8172e6fc3923043d1069c43/python_fasthtml-0.5.1-py3-none-any.whl", hash = "sha256:ba4d912b9f58dfdd8af04a7e44295a7d2a892a7193a863905712ffc265129de2", size = 46607 },
 ]
 
 [[package]]

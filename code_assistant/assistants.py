@@ -11,10 +11,11 @@ from astra_assistants.tools.structured_code.program_cache import ProgramCache, S
 from astra_assistants.tools.structured_code.rewrite import StructuredCodeRewrite
 from astra_assistants.tools.structured_code.write import StructuredCodeFileGenerator
 from astra_assistants.tools.tool_interface import ToolInterface
+from code_assistant.constants.config import GENERATED_APPS_DIR
 from openai import OpenAI, BaseModel
 from pydantic import Field
 
-from code_assistant.util.constants.small_fasthtml_context import small_fasthtml_context
+from code_assistant.constants.small_fasthtml_context import small_fasthtml_context
 from code_assistant.util.file_util import get_mount_from_file
 
 
@@ -109,7 +110,7 @@ class ManagerFactory:
         #self.code_indent_right.set_program_id(program_id)
 
     def setup_programs(self):
-        for root, dirs, files in os.walk('generated_apps'):
+        for root, dirs, files in os.walk(GENERATED_APPS_DIR):
             for file in files:
                 if not file.endswith('.pyc'):
                     text = open(root + "/" + file).read()

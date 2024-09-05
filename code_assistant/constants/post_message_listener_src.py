@@ -5,7 +5,7 @@ window.addEventListener('message', function(event) {
         let error_message = document.getElementById('error-message')
         error_message.style.display = 'block';
         let heal_data = document.getElementById('heal_data')
-        content = JSON.stringify(event.data.content)
+        let content = JSON.stringify(event.data.content)
         heal_data.value = content
     }
 });

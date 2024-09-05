@@ -91,7 +91,7 @@ def script_with_path(path: str):
         
         const form = event.target;
         // If the action has already been modified, submit normally
-        if (form.dataset.actionModified) {{
+        if (form.dataset.actionValidated) {{
             form.submit();  // Submit the form programmatically
             return;
         }}
@@ -99,19 +99,21 @@ def script_with_path(path: str):
         // Check if the form action contains a full URL or just a path
         const formAction = new URL(form.action, window.location.origin); // Ensures we work with full URL
 
-        // Modify only the path part of the action
-        const newPath = {prefix_id}_basePrefix + formAction.pathname;
-        
-        // Reconstruct the full URL with the new path
-        formAction.pathname = newPath;
+        if (! formAction.pathname.startsWith({prefix_id}_basePrefix)) {{
+            // Modify only the path part of the action
+            const newPath = {prefix_id}_basePrefix + formAction.pathname;
+            
+            // Reconstruct the full URL with the new path
+            formAction.pathname = newPath;
 
-        // Assign the modified URL back to the form action
-        form.action = formAction.href;
+            // Assign the modified URL back to the form action
+            form.action = formAction.href;
 
-        console.log('Form action changed to:', form.action);
-        
-        // Mark the form as having its action modified
-        form.dataset.actionModified = 'true';
+            console.log('Form action changed to:', form.action);
+            
+            // Mark the form as having its action modified
+        }}
+        form.dataset.actionValidated = 'true';
         
         form.submit();
 
@@ -197,6 +199,7 @@ def script_with_path(path: str):
     console.error('Column:', colno);
     console.error('Error object:', error);
 
+    debugger
     let error_message = 'Error message: ' + message + '\\nSource: ' + source + '\\nLine: ' + lineno + '\\nColumn: ' + colno + '\\nError object: ' + error;
     postMessageToParent(error_message);
 

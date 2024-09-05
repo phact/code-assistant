@@ -7,8 +7,28 @@ requires-python = ">=3.11"
 dependencies = [
     "ast-grep-py>=0.26.3",
     "astra-assistants>=2.1.0.19",
-    "python-fasthtml==0.4.5",
+    "python-fasthtml>=0.5.1",
 ]
 
-[tool.uv.sources]
-python-fasthtml = { git = "https://github.com/AnswerDotAI/fasthtml/", rev = "00f7256453ab63a172853b0b3c604be79f01b13f" }
+[project.scripts]
+ca = "code_assistant:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.poetry]
+name = "code-assistant"
+version = "0.0.0.9"
+description = "A FastHTML app that builds FastHTML apps"
+authors = ["phact <estevezsebastian@gmail.com>"]
+
+[tool.poetry.scripts]
+ca = "code_assistant:app"
+code-assistant = "code_assistant:app"
+
+[tool.poetry.dependencies]
+python = "^3.10.12,<3.12"
+ast-grep-py= "^0.26.3"
+astra-assistants= "^2.1.0.19"
+python-fasthtml= "^0.5.1"

@@ -1,5 +1,5 @@
 from code_assistant.app import *
-from code_assistant.util.constants.htmx_context import starter_app
+from code_assistant.constants.starter_app import starter_app
 from astra_assistants.tools.structured_code.util import add_chunks_to_cache
 
 

@@ -1,6 +1,6 @@
-from code_assistant.util.constants import htmx_context
-from code_assistant.util.constants.big_fasthtml_context import big_fasthtml_context
-from code_assistant.util.constants.small_fasthtml_context import small_fasthtml_context
+from code_assistant.constants.htmx_context import htmx_context
+from code_assistant.constants.big_fasthtml_context import big_fasthtml_context
+from code_assistant.constants.small_fasthtml_context import small_fasthtml_context
 
 
 async def page(request, fasthtml: str = None, small_fasthtml: str = None, htmx: str = None):

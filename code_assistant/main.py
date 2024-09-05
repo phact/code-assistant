@@ -2,33 +2,35 @@ from code_assistant.assistants import ManagerFactory
 from code_assistant.routes import home, chat_message, code, edit, file_rt, upload, context, preview, fix_errors
 from fasthtml.common import *
 
-from code_assistant.util.constants.scroll_script_src import scroll_script_src
-from code_assistant.util.constants.css_text import css_text
-from code_assistant.util.constants.post_message_listener_src import post_message_listener_src
+from code_assistant.constants.scroll_script_src import scroll_script_src
+from code_assistant.constants.css_text import css_text
+from code_assistant.constants.post_message_listener_src import post_message_listener_src
 from code_assistant.util.file_util import get_mount_from_file
+from code_assistant.constants.config import GENERATED_APPS_DIR
 
 css = Style(css_text)
 
 # Set up the app, including daisyui and tailwind for the chat component
-tlink = Script(src="https://cdn.tailwindcss.com"),
+tlink = Script(src="https://cdn.tailwindcss.com")
 dlink = Link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/daisyui@4.11.1/dist/full.min.css")
 plink = Link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/@picocss/pico@latest/css/pico.min.css")
 scrollScript = Script(scroll_script_src)
 
 app_routes = []
 
-for root, dirs, files in os.walk('generated_apps'):
+for root, dirs, files in os.walk(GENERATED_APPS_DIR):
     for file in files:
         if file.endswith('.py'):
             mount = get_mount_from_file(file)
             app_routes.append(mount)
 
-iframe_post_message_script = Script(post_message_listener_src)
+iframe_post_message_script = Script(post_message_listener_src, type="module")
 
 app, rt = fast_app(hdrs=(tlink, dlink, css, scrollScript, plink, iframe_post_message_script), routes=app_routes)
-#app, rt = fast_app(hdrs=(tlink, dlink, css, plink, scrollScript))
 
-setup_toasts(app)
+#setup_toasts(app) work around toast bug until fasthtml 5.2 ships
+app.hdrs += (Style(toast_css), Script(toast_js, type="module"))
+app.after.append(toast_after)
 
 manager = ManagerFactory(app)
 

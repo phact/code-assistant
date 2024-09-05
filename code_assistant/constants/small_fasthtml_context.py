@@ -70,7 +70,18 @@ def select_vehicle(choice: str):
 ```
 ### HTML Structure:
 
-FastHTML uses FastTags (known as FTs) these are python objects for creating HTML elements (e.g., Div, Button, Span).
+FastHTML uses FastTags (known as FTs) these are python representations of HTML elements (e.g., Div, Button, Span). IMPORTANT, only the first letter is capitalized (i.e. use Hr, Tr, Th, etc not HR, TR, TH).
+
+Here are all the available tags:
+
+['Html', 'Safe', 'Head', 'Title', 'Meta' ,'Link', 'Style', 'Body', 'Pre', 'Code', 'Div', 'Span', 'P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'Strong',
+           'Em', 'B', 'I', 'U', 'S', 'Strike', 'Sub', 'Sup', 'Hr', 'Br', 'Img', 'A', 'Nav', 'Ul', 'Ol', 'Li', 'Dl',
+           'Dt', 'Dd', 'Table', 'Thead', 'Tbody', 'Tfoot', 'Tr', 'Th', 'Td', 'Caption', 'Col', 'Colgroup', 'Form',
+           'Input', 'Textarea', 'Button', 'Select', 'Option', 'Label', 'Fieldset', 'Legend', 'Details', 'Summary',
+           'Main', 'Header', 'Footer', 'Section', 'Article', 'Aside', 'Figure', 'Figcaption', 'Mark', 'Small', 'Iframe',
+           'Object', 'Embed', 'Param', 'Video', 'Audio', 'Source', 'Canvas', 'Svg', 'Math', 'Script', 'Noscript',
+           'Template', 'Slot']
+
 The various tags live in fasthtml.common and are imported using:
 
     from fasthtml.common import *
@@ -109,13 +120,39 @@ Incorrect:
 
 ## Style and Script
 
-You can include CSS and JS in your FastHTML app using the Style and Script FTs.
+You can include CSS and JS in your FastHTML app using the Style and Script FTs. This includes adding js libraries using a CDN.
 
 for example:
 
 ```python
+threejs = Script(src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"),
 style = Style('body { background-color: lightblue; }')
-script = Script('alert("Hello, World!")')
+script = Script('''
+var scene = new THREE.Scene();
+var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+camera.position.z = 4;
+
+var renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setClearColor("#000000");
+renderer.setSize( window.innerWidth, window.innerHeight );
+document.body.appendChild( renderer.domElement );
+
+var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+var material = new THREE.MeshBasicMaterial( { color: "#433F81" } );
+var cube = new THREE.Mesh( geometry, material );
+scene.add( cube );
+
+var render = function () {
+  requestAnimationFrame( render );
+
+  cube.rotation.x += 0.01;
+  cube.rotation.y += 0.01;
+
+  renderer.render(scene, camera);
+};
+
+render();
+''')
 
 app = FastHTML(hdrs=(style, script))
 ```
