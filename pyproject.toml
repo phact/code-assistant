@@ -1,12 +1,12 @@
 [project]
 name = "code-assistant"
-version = "0.0.2"
+version = "0.0.3"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "ast-grep-py>=0.26.3",
-    "astra-assistants>=2.1.0.23",
+    "astra-assistants>=2.1.0.24",
     "python-fasthtml>=0.5.1",
 ]
 
@@ -19,7 +19,7 @@ build-backend = "hatchling.build"
 
 [tool.poetry]
 name = "code-assistant"
-version = "0.0.2"
+version = "0.0.3"
 description = "A FastHTML app that builds FastHTML apps"
 authors = ["phact <estevezsebastian@gmail.com>"]
 include = [
@@ -33,5 +33,5 @@ code-assistant = "code_assistant.code_assistant:app"
 [tool.poetry.dependencies]
 python = "^3.10.12,<3.12"
 ast-grep-py= "^0.26.3"
-astra-assistants= "^2.1.0.23"
+astra-assistants= "^2.1.0.24"
 python-fasthtml= "^0.5.1"
