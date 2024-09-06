@@ -95,7 +95,7 @@ class ManagerFactory:
             instructions="Use the structured code tools to generate code to help the user. If you still need to make more changes based on an edit, say so.",
             tools=self.tools,
             #model="openai/chatgpt-4o-latest",
-            model="openai/gpt-4o-2024-08-06",
+            model=app.state.model,
             #model="openai/gpt-4o-mini",
             #assistant_id="asst_6FH38BvdFdtzUBu7UK0U0H3Be2sgkJ7O",
             #thread_id="thread_94kTIBLZI918vFI6OLzpnOFqmiH9SI7L"

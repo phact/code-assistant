@@ -150,3 +150,7 @@ cython_debug/
 
 code_assistant/backup_generated_apps/
 generated_apps/
+
+.env.bkp
+.aider*
+*.swp

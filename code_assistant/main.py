@@ -1,7 +1,10 @@
 import shutil
 
+import dotenv
+
 from code_assistant.assistants import ManagerFactory
-from code_assistant.routes import home, chat_message, code, edit, file_rt, upload, context, preview, fix_errors
+from code_assistant.routes import home, chat_message, code, edit, file_rt, upload, context, preview, fix_errors, \
+    set_keys, update_provider
 from fasthtml.common import *
 
 from code_assistant.constants.scroll_script_src import scroll_script_src
@@ -12,6 +15,7 @@ from code_assistant.constants.config import GENERATED_APPS_DIR
 
 from importlib.resources import files
 
+dotenv.load_dotenv()
 
 css = Style(css_text)
 
@@ -73,5 +77,7 @@ app.post("/upload")(upload.page)
 app.get("/context")(context.page)
 app.post("/preview/{fileselect}")(preview.page)
 app.post('/fix_errors')(fix_errors.page)
+app.post('/keys')(set_keys.page)
+app.post('/provider')(update_provider.page)
 
 serve()

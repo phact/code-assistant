@@ -2,9 +2,9 @@ import traceback
 
 from fasthtml.common import *
 
-def get_main_content(manager, messages):
+def get_main_content(programs, messages):
     return Div(
-        get_code_section(manager, messages),
+        get_code_section(programs, messages),
     )
 
 
@@ -20,7 +20,7 @@ heal_form = Form(
 )
 
 
-def get_code_section(manager, messages):
+def get_code_section(programs, messages):
     return Section(
         Header(H1("Code Assistant")),
 
@@ -93,7 +93,7 @@ def get_code_section(manager, messages):
             Div(
                 Form(
                     Div(
-                        SelectFile(manager.programs, 0),
+                        SelectFile(programs, 0),
 
                         Div(
                             Label(
