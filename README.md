@@ -28,7 +28,8 @@ A FastHTML app that makes FastHTML apps.
 ### UI/UX
  - [X] Live app preview
  - [X] Drive generated_apps dir with env var CA_GENERATED_APPS_DIR
- - [ ] Add third party model support to frontend
+ - [X] Add third party model support to frontend
+ - [X] Improve third party auth
  - [ ] ollama integration guide / docs
 
  ### Multi-tenancy
@@ -38,9 +39,36 @@ A FastHTML app that makes FastHTML apps.
 
 code-assistant is built on OpenAI's Assistant API and uses astra-assistants to support other models including claude and local models.
 
-## Prereqs
+## Install and run
 
-Set up environment variables for astra-assistants and your LLM provider:
+Install with pip:
+
+    pip install code-assistant
+
+Run:
+
+    code-assistant
+
+this will start the web server on port 5001 and will create a generated_apps directory on your current working directory. You can override this directory by setting the CA_GENERATED_APPS_DIR environment variable.
+
+    export CA_GENERATED_APPS_DIR="~/my_apps"
+    code-assistant
+
+## Run as an isolated program
+
+use pipx or uvx if you're a uv user to run as an isolated program:
+
+    pipx run code-assistant
+
+or
+
+    uvx code-assistant
+
+## Third party LLM provider Authentication
+
+If you have not provided credentials via env vars the UI will prompt you for credentials. Credentials inputed via the UI are not persisted.
+
+To avoid manual entry, set up environment variables for [astradb](https://astra.datastax.com/) [required for any non OpenAI models] and your LLM provider of choice.:
 
 ```
 #!/bin/bash
@@ -77,29 +105,3 @@ export GOOGLE_PROJECT_ID=""
 
 # ... for other models see https://github.com/datastax/astra-assistants-api/blob/main/.env.bkp
 ```
-
-## Install and run
-
-Install with pip:
-
-    pip install code-assistant
-
-Run:
-
-    code-assistant
-
-this will start the web server on port 5001 and will create a generated_apps directory on your current working directory. You can override this directory by setting the CA_GENERATED_APPS_DIR environment variable.
-
-    export CA_GENERATED_APPS_DIR="~/my_apps"
-    code-assistant
-
-## Run as an isolated program
-
-use pipx or uvx if you're a uv user to run as an isolated program:
-
-    pipx run code-assistant
-
-or
-
-    uvx code-assistant
-
