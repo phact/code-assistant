@@ -18,7 +18,8 @@ async def page(request, session, msg: str, programid: str = None, tool_choice: s
 
         message_text = f"## Context:\nMake an edit for the program and describe your changes\n" + \
                        f"the current content of the program (with line numbers) is:\n{program_string}\n" + \
-                       f"## Request:\nPerform the following changes to the program using the edit tools: \n{msg}"
+                       (f"## Request:\nPerform the following changes to the program using the edit tools\n"
+                        f"Note, Don't forget things you have already fixed or improved earlier in the conversation: \n{msg}")
         if program_string is None:
             return {"error": f"Program id {programid} not found"}
         manager.set_program_ids(programid)

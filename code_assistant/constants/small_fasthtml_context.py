@@ -84,13 +84,17 @@ Here are all the available tags:
 
 The various tags live in fasthtml.common and are imported using:
 
-    from fasthtml.common import *
+```
+from fasthtml.common import *
+```
 
 Always import * from fasthtml.common rather than doing individual imports
 
 HTML attributes can be set using named python arguments. For example, to set the class attribute of a Div element:
 
+```
 Div(cls='my-class')
+```
 
 You can nest FastTags inside each other using positional python arguments in order to create complex HTML structures. 
 
@@ -98,24 +102,47 @@ Remember to include positional arguments (i.e. other FTs) before you include any
  
 The following example is incorrect:
 
+```
+def get():
     return Div(cls='my-class', Div('inner div')) 
+```
 
 It will return following runtime error: `positional argument follows keyword argument`
 
-
+```
+def get():
     return Div(Div('inner div'), cls='my-class')
+```
 
 Use semantic elements like Nav, Header, Form, Section to organize content.
 
-Ensure that children elements are passed as positional arguments to parent tags:
+Ensure that FT children elements are passed as positional arguments to parent tags:
 
 Correct:
 
-    Div(P('hello world'))
+```
+Form(
+    Button('one'),
+    Button('two'),
+    Button('three'),
+    id="my-form"
+)
+```
 
-Incorrect:
+or 
 
-    Div(children=['P('hello world')'])  # FT's do **not** take a children keyword argument
+```
+buttons = [Button(str(i)) for i in range(1, 4)]
+Form(id="my-form", *buttons) # Form(buttons) or Form(children=buttons) WILL NOT WORK
+```
+
+If you need to pass attributes BEFORE children FTs, you can do it like so:
+
+```
+Form(id="my-form")(*buttons)
+```
+
+Remember, attributes are positional arguments.
 
 
 ## Style and Script
@@ -520,7 +547,7 @@ def __ft__(self:Todo):
     # FastHTML provides some shortcuts. For instance, `Hidden` is defined as simply:
     # `return Input(type="hidden", value=value, **kwargs)`
     cts = (dt, show, ' | ', edit, Hidden(id="id", value=self.id), Hidden(id="priority", value="0"))
-    # Any FT object can take a list of children as positional args, and a dict of attrs as keyword args.
+    # Any FT object can take a list of FTs as positional args, and a dict of attrs as keyword args.
     return Li(*cts, id=f'todo-{self.id}')
 
 # This is the handler for the main todo list application.

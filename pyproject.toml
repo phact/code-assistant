@@ -1,6 +1,6 @@
 [project]
 name = "code-assistant"
-version = "0.0.3"
+version = "0.0.4"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -19,7 +19,7 @@ build-backend = "hatchling.build"
 
 [tool.poetry]
 name = "code-assistant"
-version = "0.0.3"
+version = "0.0.4"
 description = "A FastHTML app that builds FastHTML apps"
 authors = ["phact <estevezsebastian@gmail.com>"]
 include = [

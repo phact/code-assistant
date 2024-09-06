@@ -82,7 +82,18 @@ def generate_html(exc: Exception, content: str, limit: int = 7) -> str:
 def script_with_path(path: str):
     prefix_id = path.replace('/', '').replace('.', '')
     script = Script(f"""
-  let {prefix_id}_basePrefix = '{path}';
+  let _{prefix_id}_basePrefix = '{path}';
+
+  const stringifyCircularJSON = obj => {{
+    const seen = new WeakSet();
+    return JSON.stringify(obj, (k, v) => {{
+      if (v !== null && typeof v === 'object') {{
+        if (seen.has(v)) return;
+        seen.add(v);
+      }}
+      return v;
+    }});
+  }};
 
   function add_listeners(){{
     document.addEventListener('submit', function(event) {{
@@ -99,9 +110,9 @@ def script_with_path(path: str):
         // Check if the form action contains a full URL or just a path
         const formAction = new URL(form.action, window.location.origin); // Ensures we work with full URL
 
-        if (! formAction.pathname.startsWith({prefix_id}_basePrefix)) {{
+        if (! formAction.pathname.startsWith(_{prefix_id}_basePrefix)) {{
             // Modify only the path part of the action
-            const newPath = {prefix_id}_basePrefix + formAction.pathname;
+            const newPath = _{prefix_id}_basePrefix + formAction.pathname;
             
             // Reconstruct the full URL with the new path
             formAction.pathname = newPath;
@@ -125,49 +136,42 @@ def script_with_path(path: str):
       const path = event.detail.path;
 
       // Ensure the path is correctly prefixed with the base URL
-      if (!path.startsWith({prefix_id}_basePrefix)) {{
-        event.detail.path = `${{{prefix_id}_basePrefix}}${{path}}`;
+      if (!path.startsWith(_{prefix_id}_basePrefix)) {{
+        event.detail.path = `${{_{prefix_id}_basePrefix}}${{path}}`;
       }}
     }});
 
     // Modify all anchor hrefs that start with '/' to include the basePrefix
     document.querySelectorAll('a[href^="/"]').forEach(anchor => {{
       let href = anchor.getAttribute('href');
-      if (!href.startsWith({prefix_id}_basePrefix)) {{
-        anchor.setAttribute('href', `${{{prefix_id}_basePrefix}}${{href}}`);
+      if (!href.startsWith(_{prefix_id}_basePrefix)) {{
+        anchor.setAttribute('href', `${{_{prefix_id}_basePrefix}}${{href}}`);
       }}
     }});
     
     const originalFetch = window.fetch;
     window.fetch = function(input, init) {{
       if (typeof input === 'string') {{
-        if (!input.startsWith({prefix_id}_basePrefix)) {{
-          input = `${{{prefix_id}_basePrefix}}${{input}}`;
+        if (!input.startsWith(_{prefix_id}_basePrefix)) {{
+          input = `${{_{prefix_id}_basePrefix}}${{input}}`;
         }}
       }} else if (input instanceof Request) {{
-        if (!input.url.startsWith({prefix_id}_basePrefix)) {{
-          input = new Request(`${{{prefix_id}_basePrefix}}${{input.url}}`, input);
+        if (!input.url.startsWith(_{prefix_id}_basePrefix)) {{
+          input = new Request(`${{_{prefix_id}_basePrefix}}${{input.url}}`, input);
         }}
       }}
       return originalFetch(input, init);
     }}
     
     
-    const stringifyCircularJSON = obj => {{
-      const seen = new WeakSet();
-      return JSON.stringify(obj, (k, v) => {{
-        if (v !== null && typeof v === 'object') {{
-          if (seen.has(v)) return;
-          seen.add(v);
-        }}
-        return v;
-      }});
-    }};
 
     // Handle general HTMX response errors
     document.body.addEventListener('htmx:responseError', function(event) {{
-      console.error('HTMX Response Error:', event.detail);
-      postMessageToParent('Error message: ' + stringifyCircularJSON(event.detail));
+      let trace = event.detail.xhr.responseText;
+      let error_message = 'HTMX Response Error: ' + stringifyCircularJSON(event.detail) + 'trace: ' + trace;
+      error_message = error_message.replaceAll(_{prefix_id}_basePrefix, '')
+      console.log('HTMX Response Error:', error_message);
+      postMessageToParent(error_message);
     }});
     
   }};
@@ -199,7 +203,6 @@ def script_with_path(path: str):
     console.error('Column:', colno);
     console.error('Error object:', error);
 
-    debugger
     let error_message = 'Error message: ' + message + '\\nSource: ' + source + '\\nLine: ' + lineno + '\\nColumn: ' + colno + '\\nError object: ' + error;
     postMessageToParent(error_message);
 
@@ -243,8 +246,11 @@ def script_with_path(path: str):
     XMLHttpRequest.prototype.send = function() {{
         this.addEventListener('load', function() {{
             if (this.status > 400 && this.status < 600) {{
-                console.error('XHR Error: ' + this.responseURL + ' status: ' + this.status);
-                postMessageToParent('XHR Error: ' + this.responseURL + ' status: ' + this.status);
+                let trace = this.responseText;
+                let error_message = 'XHR Error: ' + this.responseURL + ' status: ' + this.status + stringifyCircularJSON(this) + 'trace: ' + trace;
+                error_message = error_message.replaceAll(_{prefix_id}_basePrefix, '')
+                console.log('XHR Error:', error_message);
+                postMessageToParent(error_message);
             }}
         }});
         return originalSend.apply(this, arguments);
