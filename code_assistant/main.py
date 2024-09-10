@@ -10,7 +10,7 @@ from fasthtml.common import *
 from code_assistant.constants.scroll_script_src import scroll_script_src
 from code_assistant.constants.css_text import css_text
 from code_assistant.constants.post_message_listener_src import post_message_listener_src
-from code_assistant.util.file_util import get_mount_from_file
+from code_assistant.util.file_util import get_mount_from_project
 from code_assistant.constants.config import GENERATED_APPS_DIR
 
 from importlib.resources import files
@@ -35,14 +35,16 @@ if not os.path.exists(GENERATED_APPS_DIR):
     generated_apps_dir = files('code_assistant').joinpath('generated_apps')
     print(f"Copying files to : {GENERATED_APPS_DIR}")
     for file in generated_apps_dir.iterdir():
-        if file.is_file():
+        if file.is_dir():
+            shutil.copytree(file, os.path.join(GENERATED_APPS_DIR, file.name))
+        elif file.is_file():
             shutil.copy(file, GENERATED_APPS_DIR)
 
-for root, dirs, files in os.walk(GENERATED_APPS_DIR):
-    for file in files:
-        if file.endswith('.py'):
-            mount = get_mount_from_file(file)
-            app_routes.append(mount)
+for project in os.listdir(GENERATED_APPS_DIR):
+    project_path = os.path.join(GENERATED_APPS_DIR, project)
+    if os.path.isdir(project_path):
+        mount = get_mount_from_project(project)
+        app_routes.append(mount)
 
 iframe_post_message_script = Script(post_message_listener_src, type="module")
 
