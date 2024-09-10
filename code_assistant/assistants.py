@@ -15,7 +15,7 @@ from code_assistant.constants.config import GENERATED_APPS_DIR
 from openai import OpenAI, BaseModel
 from pydantic import Field
 
-from code_assistant.constants.small_fasthtml_context import small_fasthtml_context
+from code_assistant.constants.context.small_fasthtml_context import small_fasthtml_context
 from code_assistant.util.file_util import get_mount_from_file
 
 
