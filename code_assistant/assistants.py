@@ -72,7 +72,7 @@ class ManagerFactory:
                             break
                     if route is not None:
                         self.app.routes.remove(route)
-                    self.app.routes.append(get_mount_from_file(item.program.filename, item.program_id))
+                    self.app.routes.append(get_mount_from_project(item.program.filename.split('.')[0], item.program_id))
 
     def __init__(self, app):
         self.app = app
