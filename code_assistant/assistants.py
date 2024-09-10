@@ -111,17 +111,20 @@ class ManagerFactory:
 
     def setup_programs(self):
         for root, dirs, files in os.walk(GENERATED_APPS_DIR):
+            project_name = os.path.basename(root)
             for file in files:
                 if not file.endswith('.pyc'):
-                    text = open(root + "/" + file).read()
+                    file_path = os.path.join(root, file)
+                    with open(file_path, 'r') as f:
+                        text = f.read()
                     try:
                         self.programs.append(
                             StructuredProgramEntry(
-                                program_id=file,
+                                program_id=project_name,
                                 program=StructuredProgram(
                                     lines=text.split("\n"),
                                     filename=file,
-                                    language=file.split(".")[1]
+                                    language=file.split(".")[-1]
                                 )
                             )
                         )
