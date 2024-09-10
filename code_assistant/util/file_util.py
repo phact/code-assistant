@@ -2,6 +2,7 @@ import html
 import importlib
 import inspect
 import json
+import sys
 import traceback
 from importlib import import_module
 
@@ -349,21 +350,23 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
             raise exc
 
 
-def get_mount_from_file(filename, program_id=None):
+def get_mount_from_project(project_name, program_id=None):
     if program_id is None:
-        program_id = filename
-    filename = filename.split('.')[0]
-    print(f"loading filename: {filename}")
+        program_id = project_name
+    print(f"Loading project: {project_name}")
     sub_app = None
     try:
-        with open(f'generated_apps/{filename}.py') as f:
+        project_dir = f'generated_apps/{project_name}'
+        main_file = f'{project_dir}/main.py'
+        
+        with open(main_file) as f:
             code = f.read()
             # TODO: required libraries will be configurable
             assert is_library_used(code, 'fasthtml'), "The app does not use fasthtml library."
             assert serve_attr_check(code), "serve() function should not have any attributes."
-            assert (code), "serve() function should not have any attributes."
 
-        module = import_module(f'generated_apps.{filename}')
+        sys.path.insert(0, 'generated_apps')
+        module = import_module(f'{project_name}.main')
         importlib.reload(module)
         sub_app = module.app
         sub_app.debug = True
@@ -371,7 +374,7 @@ def get_mount_from_file(filename, program_id=None):
         sub_app.add_middleware(ErrorHandlingMiddleware)
 
         mount = Mount(
-            f"/{filename}",
+            f"/{project_name}",
             sub_app,
         )
         assert isinstance(mount.app,
@@ -379,16 +382,16 @@ def get_mount_from_file(filename, program_id=None):
     except Exception as e:
         import traceback
         trace = traceback.format_exc()
-        content = json.dumps({"error_message": str(e), "filename": filename, "program_id": program_id})
-        sub_app = get_error_app(filename, str(e), trace, program_id, get_post_message_script(content))
+        content = json.dumps({"error_message": str(e), "project": project_name, "program_id": program_id})
+        sub_app = get_error_app(project_name, str(e), trace, program_id, get_post_message_script(content))
         mount = Mount(
-            path=f"/{filename}",
+            path=f"/{project_name}",
             app=sub_app
         )
-    script = script_with_path(f'/{filename}')
+    script = script_with_path(f'/{project_name}')
     assert sub_app is not None, "Unexpected error, sub_app is none"
     sub_app.hdrs.append(script)
-    print(f"loaded filename: {filename}")
+    print(f"Loaded project: {project_name}")
     return mount
 
 
