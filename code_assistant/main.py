@@ -12,6 +12,7 @@ from code_assistant.constants.css_text import css_text
 from code_assistant.constants.post_message_listener_src import post_message_listener_src
 from code_assistant.util.file_util import get_mount_from_project
 from code_assistant.constants.config import GENERATED_APPS_DIR
+from code_assistant.constants.config import GENERATED_APPS_DIR
 
 from importlib.resources import files
 

@@ -357,7 +357,7 @@ def get_mount_from_project(project_name, program_id=None):
     sub_app = None
     try:
         project_dir = f'generated_apps/{project_name}'
-        main_file = f'{project_dir}/main.py'
+        main_file = f'{project_dir}/app.py'
         
         with open(main_file) as f:
             code = f.read()
@@ -366,7 +366,7 @@ def get_mount_from_project(project_name, program_id=None):
             assert serve_attr_check(code), "serve() function should not have any attributes."
 
         sys.path.insert(0, 'generated_apps')
-        module = import_module(f'{project_name}.main')
+        module = import_module(f'{project_name}.app')
         importlib.reload(module)
         sub_app = module.app
         sub_app.debug = True
