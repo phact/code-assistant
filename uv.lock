@@ -131,7 +131,7 @@ wheels = [
 
 [[package]]
 name = "astra-assistants"
-version = "2.1.0.24"
+version = "2.1.0.25"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
@@ -146,9 +146,9 @@ dependencies = [
     { name = "tree-sitter" },
     { name = "tree-sitter-python" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f7/1c/cb29723e4953246bf6da9b8a506dcfa11ab5d137184dfc9be4155e3aeaa9/astra_assistants-2.1.0.24.tar.gz", hash = "sha256:5262e0fac99f93a28415099d97d81ab3130c574159f13632cd67537206efefe0", size = 25032 }
+sdist = { url = "https://files.pythonhosted.org/packages/dc/66/06a2a83ece6d4b7f42158bc65b8d19c50a5ccac42091fdccbb08efe271fa/astra_assistants-2.1.0.25.tar.gz", hash = "sha256:24f04a530fd983487fa338538e3682128ce2625056b0515475110efbd745ea74", size = 25039 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/46/5a/ed954dc593f6561cc03d136b5ea4b8c551b67f5200652198ff65dbcb48ac/astra_assistants-2.1.0.24-py3-none-any.whl", hash = "sha256:c03723be32f9e3633115a0e508d02a1ec298d01ad5676ef23572d9c3f3913ba7", size = 33641 },
+    { url = "https://files.pythonhosted.org/packages/c3/02/469eeccd0646ceda97bb20a75f10e1e47ff96226d5c3ba53966918cad871/astra_assistants-2.1.0.25-py3-none-any.whl", hash = "sha256:9900e43a310795ec067585e88388b3a273c01259c73570e6e6c0b766190005df", size = 33672 },
 ]
 
 [[package]]
@@ -274,7 +274,7 @@ wheels = [
 
 [[package]]
 name = "code-assistant"
-version = "0.0.2"
+version = "0.0.4"
 source = { editable = "." }
 dependencies = [
     { name = "ast-grep-py" },
@@ -285,7 +285,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "ast-grep-py", specifier = ">=0.26.3" },
-    { name = "astra-assistants", specifier = ">=2.1.0.24" },
+    { name = "astra-assistants", specifier = ">=2.1.0.25" },
     { name = "python-fasthtml", specifier = ">=0.5.1" },
 ]
 

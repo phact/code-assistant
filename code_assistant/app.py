@@ -1,10 +1,14 @@
 import traceback
+from astra_assistants.tools.structured_code.program_cache import ProgramCache
 
 from fasthtml.common import *
 
-def get_main_content(programs, messages):
+from code_assistant.assistants import ManagerFactory, Project, Projects
+
+
+def get_main_content(programs, projects, messages):
     return Div(
-        get_code_section(programs, messages),
+        get_code_section(programs, projects, messages),
     )
 
 
@@ -20,7 +24,7 @@ heal_form = Form(
 )
 
 
-def get_code_section(programs, messages):
+def get_code_section(programs, projects, messages):
     return Section(
         Header(H1("Code Assistant")),
 
@@ -93,7 +97,7 @@ def get_code_section(programs, messages):
             Div(
                 Form(
                     Div(
-                        SelectFile(programs, 0),
+                        SelectFile(programs, projects, 0),
 
                         Div(
                             Label(
@@ -200,40 +204,39 @@ def FileOutput(content: str = None, linenumbers: bool = True):
     return file_output
 
 
-def SelectFile(program_cache=None, selected_index=None, disabled=False):
-    if program_cache is None:
+def SelectFile(programs: ManagerFactory.ObservableList = None, projects: Projects =None, selected_index=None, disabled=False):
+    if programs is None or projects is None:
         return Select(id="fileselect", hx_swap_oob='true')
 
     if selected_index is None:
-        selected_index = len(program_cache)
+        selected_index = len(programs.order)
 
-    options = [Option("Select a file", value="")]
+    options = [Option("Select a project", value="")]
     if selected_index == 0:
-        options = [Option("Select a file", value="", selected=True)]
+        options = [Option("Select a project", value="", selected=True)]
 
-    file_list = []
     i = 1
-    for program_entry in program_cache:
-        structured_program = program_entry.program
-        option = None
-        if i == selected_index:
-            option = Option(structured_program.filename, value=program_entry.program_id, selected=True)
-        else:
-            option = Option(structured_program.filename, value=program_entry.program_id)
-        found_option = False
-        for each_option in options.copy():
-            if option.children[0] == each_option.children[0]:
-                options.remove(each_option)
+    for project in projects.projects:
+        # Currently there is only one file per project
+        for filename, program_id in project.filename_to_program_id.items():
+            if i == selected_index:
+                option = Option(filename, value=program_id, selected=True)
+            else:
+                option = Option(filename, value=program_id)
+            found_option = False
+            for each_option in options.copy():
+                if option.children[0] == each_option.children[0]:
+                    options.remove(each_option)
+                    options.append(option)
+                    found_option = True
+            if not found_option:
                 options.append(option)
-                found_option = True
-        if not found_option:
-            options.append(option)
-        i += 1
+            i += 1
 
     return (
         Select(
             *options,
-            id="fileselect",
+            id="program_id",
             hx_swap_oob='true',
             cls="select select-bordered w-full max-w-xs",
             disabled=disabled
@@ -262,7 +265,7 @@ def ChatControls(programid: str = None):
                 Button("Send", id="chat-send-button", cls="btn btn-primary", hx_disabled_elt=".btn")
             ),
             id="chat-controls",
-            hx_post=f"/edit/{programid}", hx_target="#chatlist", hx_swap="beforeend",
+            hx_post=f"/edit/{programid.replace('/app.py','')}", hx_target="#chatlist", hx_swap="beforeend",
             cls="flex space-x-2 mt-2",
         ),
         id="chat-controls",
@@ -297,7 +300,7 @@ def get_response_factory(messages):
 
 
 
-def PreviewCheckbox(fileselect: str, checked: bool = False):
+def PreviewCheckbox(program_id: str, checked: bool = False):
     return Div(
         Label(
             "Preview",
@@ -308,7 +311,7 @@ def PreviewCheckbox(fileselect: str, checked: bool = False):
                 cls="toggle disabled",
                 checked=False,
             ),
-            hx_trigger="change", hx_post=f"/preview/{fileselect}", cls="label cursor-pointer", hx_swap="none",
+            hx_trigger="change", hx_post=f"/preview/{program_id.replace('/app.py', '')}", cls="label cursor-pointer", hx_swap="none",
             for_="linenumbers"
         ),
         id="preview-toggle",

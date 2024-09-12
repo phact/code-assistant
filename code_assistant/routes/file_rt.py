@@ -1,7 +1,8 @@
 from code_assistant.app import *
 
-async def page(request, fileselect: str = None, linenumbers: bool = None):
-    if fileselect is None or fileselect == "" or fileselect == "Select a file":
+
+async def page(request, program_id: str = None, linenumbers: bool = None):
+    if program_id is None or program_id == "" or program_id == "Select a project":
         return (
             FileOutput(),
             ChatControls(programid=None),
@@ -17,7 +18,10 @@ async def page(request, fileselect: str = None, linenumbers: bool = None):
                         checked=False,
                         disabled=True,
                     ),
-                    hx_trigger="change", hx_post=f"/preview/{fileselect}", cls="label cursor-pointer", hx_swap="none",
+                    hx_trigger="change",
+                    hx_post=f"/preview/{program_id}",
+                    cls="label cursor-pointer",
+                    hx_swap="none",
                     for_="linenumbers"
                 ),
                 id="preview-toggle",
@@ -26,17 +30,14 @@ async def page(request, fileselect: str = None, linenumbers: bool = None):
             ),
         )
 
-    cache = request.app.state.manager.programs
+    projects = request.app.state.manager.projects
+    programs = request.app.state.manager.programs
 
-    output = None
-    for program_entry in cache:
-        if program_entry.program_id == fileselect:
-            output = program_entry.program
-            break
+    # Currently only one program per project
+    output = programs.get(program_id).program
 
     return (
         FileOutput(output.to_string(with_line_numbers=False), linenumbers=linenumbers),
-        ChatControls(fileselect),
-        PreviewCheckbox(fileselect, False)
+        ChatControls(program_id),
+        PreviewCheckbox(program_id, False)
     )
-

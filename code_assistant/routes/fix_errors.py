@@ -13,12 +13,9 @@ async def page(request, session, heal_data: str):
     if 'program_id' in data:
         program_id = data['program_id']
     else:
-        for program_entry in manager.programs:
-            if program_entry.program.filename == filename:
-                program_id = program_entry.program_id
-                break
-
+        program_id = manager.programs.cache.get(filename.replace('.py', '')).program_id
     assert program_id is not None, f"Program not found in cache for filename {filename}"
+
     message = "Please rewrite the app to fix the following error: " + error_message
     print(f"healing message {message}")
     output = await edit.page(request, session, message, program_id, manager.code_rewriter)

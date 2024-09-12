@@ -18,6 +18,7 @@ async def page(request):
     if request.app.state._manager is None and env_var_is_missing(provider, env_vars):
         return key_modal_page(provider, env_vars, model)
     programs = request.app.state.manager.programs
+    projects = request.app.state.manager.projects
     messages = request.app.state.messages
     for message_object in message_objects:
         msg = message_object.content[0].text.value
@@ -26,7 +27,7 @@ async def page(request):
         else:
             request.app.state.messages.append({"role": "assistant", "content": msg})
     return Div(
-        get_main_content(programs, messages),
+        get_main_content(programs, projects, messages),
         cls="container",
     )
 

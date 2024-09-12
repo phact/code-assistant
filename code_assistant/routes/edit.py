@@ -4,15 +4,13 @@ from astra_assistants.tools.structured_code.util import add_chunks_to_cache
 
 async def page(request, session, msg: str, programid: str = None, tool_choice: str = None):
     messages = request.app.state.messages
+    projects = request.app.state.manager.projects
+    programs = request.app.state.manager.programs
     manager = request.app.state.manager
 
     try:
         idx = len(messages)
-        program_string = None
-        for program_entry in manager.programs:
-            if program_entry.program_id == programid:
-                program_string = program_entry.program.to_string()
-                break
+        program_string = programs.get(programid).program.to_string()
 
         messages.append({"role": "user", "content": msg})
 
@@ -35,15 +33,17 @@ async def page(request, session, msg: str, programid: str = None, tool_choice: s
 
         messages.append({"role": "assistant", "generating": True, "content": ""})  # Response initially blank
         first_chunk = add_chunks_to_cache(r, manager.programs, get_response_factory(messages))
+        assert first_chunk is not None, f"first_chunk is None, error in API call to assistants, retry"
         output = first_chunk['output']
         programid = first_chunk['program_id']
 
         selected_index = 0
         i = 1
-        for program_entry in manager.programs:
-            if program_entry.program_id == programid:
-                selected_index = i
-            i += 1
+        for project in manager.projects.projects:
+            for program_id in project.program_id_to_filename.values():
+                if programid == program_id:
+                    selected_index = i
+                i += 1
 
         if output is not None:
             if hasattr(output, 'to_string'):
@@ -59,7 +59,7 @@ async def page(request, session, msg: str, programid: str = None, tool_choice: s
                     ),
                 ChatMessage(messages, idx + 1),
                 FileOutput(code),
-                SelectFile(manager.code_generator.program_cache, selected_index),
+                SelectFile(programs, projects, selected_index),
                 ChatInput(),
                 PreviewCheckbox(programid, False)
             )

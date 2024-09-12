@@ -27,7 +27,7 @@ async def page(request, msg: str):
             ChatMessage(messages, idx),
             ChatMessage(messages, idx + 1),
             FileOutput(output.to_string(False)),
-            SelectFile(manager.code_generator.program_cache),
+            SelectFile(manager.programs, manager.projects),
             ChatInput(),
             ChatControls(programid=programid),
             PreviewCheckbox(programid, False)

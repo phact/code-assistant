@@ -9,7 +9,7 @@ async def page(request, uploadfile: UploadFile):
     text = (await uploadfile.read()).decode()
     filename = uploadfile.filename
     programid = str(uuid1())
-    manager.programs.append(
+    manager.projects.append(
         {
             "program_id": programid,
             "output": StructuredProgram(
@@ -21,6 +21,6 @@ async def page(request, uploadfile: UploadFile):
     )
     return (
         FileOutput(text, linenumbers=True),
-        SelectFile(manager.programs),
+        SelectFile(manager.programs, manager.projects),
         ChatControls(programid=programid)
     )
