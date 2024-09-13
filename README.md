@@ -64,9 +64,25 @@ or
 
     uvx code-assistant
 
+## Run with Docker
+
+    docker run -p 5001:5001 phact/code-assistant
+
+optionally pass auth credentials as environment variables:
+
+    docker run -p 5001:5001 -e OPENAI_API_KEY="your-key" phact/code-assistant
+
+or 
+
+    docker run -p 5001:5001 -e ANTHROPIC_API_KEY="your-key" -e ASTRA_DB_APPLICATION_TOKEN="your token" phact/code-assistant
+
+etc depending on your LLM provider.
+
 ## Third party LLM provider Authentication
 
 If you have not provided credentials via env vars the UI will prompt you for credentials. Credentials inputed via the UI are not persisted.
+
+[![video](assets/code_assistant_models.gif)](https://www.youtube.com/watch?v=9Vk7t7wtd4E)
 
 To avoid manual entry, set up environment variables for [astradb](https://astra.datastax.com/) [required for any non OpenAI models] and your LLM provider of choice.:
 
