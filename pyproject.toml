@@ -18,3 +18,4 @@ code-assistant = "code_assistant.code_assistant:app"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
