@@ -1,4 +1,4 @@
-name: Client Release on Version Change
+name: Release on Version Change
 
 on:
   push:
