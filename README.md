@@ -74,6 +74,13 @@ or
 
     uvx code-assistant
 
+
+## Deploy on Railway
+
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/uLhG0l?referralCode=A6Uk1R)
+
+**Note**: Deployments on Railway using this template are exposed to the internet. For security the template requires you to set up basic auth (username and password) to protect your deployment. Do not share these with anyone you do not trust.
+
 ## Run with Docker
 
     docker run -p 5001:5001 phact/code-assistant
