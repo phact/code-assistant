@@ -1,0 +1,40 @@
+name: Client Release on Version Change
+
+on:
+  push:
+    paths:
+      - '.pyproject.toml'
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Get version number
+      id: get_version
+      run: |
+        VERSION=$(grep '^version =' pyproject.toml | sed 's/version = "//g' | sed 's/"//g')
+        echo "VERSION=$VERSION" > $GITHUB_ENV
+
+    - name: Create Git tag
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git tag "code-assistant${{ env.VERSION }}"
+        git push origin "code-assistant${{ env.VERSION }}"
+
+    - name: Create GitHub Release
+      uses: actions/create-release@v1
+      with:
+        tag_name: "${{ env.VERSION }}"
+        release_name: "v${{ env.VERSION }}"
+        body: "Automated release for v${{ env.VERSION }}"
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
