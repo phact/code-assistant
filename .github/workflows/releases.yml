@@ -3,7 +3,7 @@ name: Client Release on Version Change
 on:
   push:
     paths:
-      - '.pyproject.toml'
+      - 'pyproject.toml'
     branches:
       - main
 
