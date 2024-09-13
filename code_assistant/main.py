@@ -11,8 +11,7 @@ from code_assistant.constants.scroll_script_src import scroll_script_src
 from code_assistant.constants.css_text import css_text
 from code_assistant.constants.post_message_listener_src import post_message_listener_src
 from code_assistant.util.file_util import get_mount_from_project
-from code_assistant.constants.config import GENERATED_APPS_DIR
-from code_assistant.constants.config import GENERATED_APPS_DIR
+from code_assistant.constants.config import GENERATED_APPS_DIR, USER, PASSWORD
 
 from importlib.resources import files
 
@@ -49,7 +48,14 @@ for project in os.listdir(GENERATED_APPS_DIR):
 
 iframe_post_message_script = Script(post_message_listener_src, type="module")
 
-app, rt = fast_app(hdrs=(tlink, dlink, css, scrollScript, plink, iframe_post_message_script), routes=app_routes)
+
+middleware = []
+if USER is not None and PASSWORD is not None:
+    print("Setting up basic auth")
+    auth = user_pwd_auth({USER: PASSWORD}, skip=[r'/favicon\.ico', r'/static/.*', r'.*\.css'])
+    middleware.append(auth)
+
+app, rt = fast_app(hdrs=(tlink, dlink, css, scrollScript, plink, iframe_post_message_script), routes=app_routes, middleware=middleware)
 
 #setup_toasts(app) work around toast bug until fasthtml 5.2 ships
 app.hdrs += (Style(toast_css), Script(toast_js, type="module"))

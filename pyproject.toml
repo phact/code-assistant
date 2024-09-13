@@ -1,6 +1,6 @@
 [project]
 name = "code-assistant"
-version = "0.1.0"
+version = "0.1.1"
 description = "A FastHTML app that builds FastHTML apps"
 authors = [{ name = "phact", email = "estevezsebastian@gmail.com" }]
 readme = "README.md"
