@@ -87,10 +87,16 @@ def key_modal_page(provider, env_vars, model):
         )
     )
     key_modal = get_key_modal(provider, form_inputs)
-    modal_open_script = Script("key_modal.showModal()")
-    return Div(
-        key_modal,
-        modal_open_script,
-        cls="container",
-        id="container"
+    modal_open_script = Script("""
+    document.addEventListener('DOMContentLoaded', 
+        document.getElementById('key_modal').showModal()
+    )
+    """)
+    return (
+        Div(
+            key_modal,
+            cls="container",
+            id="container"
+        ),
+        modal_open_script
     )

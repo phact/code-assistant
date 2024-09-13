@@ -382,7 +382,7 @@ def get_mount_from_project(project_name, program_id=None):
     except Exception as e:
         import traceback
         trace = traceback.format_exc()
-        content = json.dumps({"error_message": str(e), "project": project_name, "program_id": program_id})
+        content = json.dumps({"error_message": str(e), "filename": project_name, "program_id": program_id})
         sub_app = get_error_app(project_name, str(e), trace, program_id, get_post_message_script(content))
         mount = Mount(
             path=f"/{project_name}",
