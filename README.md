@@ -2,6 +2,16 @@
 
 A FastHTML app that makes FastHTML apps.
 
+[![commits](https://img.shields.io/github/commit-activity/m/phact/code-assistant)](https://github.com/phact/code-assistant/commits/main)
+[![Github Last Commit](https://img.shields.io/github/last-commit/phact/code-assistant)](https://github.com/phact/code-assistant/commits/main)
+[![Release](https://github.com/phact/code-assistant/actions/workflows/releases.yml/badge.svg?branch=main)](https://github.com/phact/code-assistant/actions/workflows/releases.yml)
+[![Docker build and publish](https://github.com/phact/code-assistant/actions/workflows/docker.yml/badge.svg)](https://github.com/phact/code-assistant/actions/workflows/docker.yml)
+[![PyPI - Downloads](https://img.shields.io/pypi/dw/code-assistant?label=pypi%20downloads)](https://badge.fury.io/py/code-assistant)
+[![Dockerhub](https://img.shields.io/static/v1?label=Pull%20from&message=DockerHub&color=blue&logo=Docker&style=flat-square)](https://hub.docker.com/r/phact/code-assistant)
+[![Discord chat](https://img.shields.io/static/v1?label=Chat%20on&message=Discord&color=blue&logo=Discord&style=flat-square)](https://discord.gg/MEFVXUvsuy)
+[![Stars](https://img.shields.io/github/stars/phact/code-assistant?style=social)](https://github.com/phact/code-assistant/stargazers)
+
+
 ## Features and Roadmap:
 
 ### Guiding the LLM
