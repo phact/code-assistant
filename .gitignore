@@ -148,8 +148,10 @@ cython_debug/
 
 .sesskey
 
-code_assistant/backup_generated_apps/
-generated_apps/
+/generated_apps/
+backup_generated_apps/
+
+!/code_assistant/generated_apps/
 
 .env.bkp
 .aider*
